@@ -1,5 +1,5 @@
 
-const global_storage = "ch_thomas_timelog";
+const global_storage = "ch_ensnert_timelog";
 
 const TYPES = { START: 0, BREAK: 1, END: 2 };
 const TYPES_TRANSLATION = {
@@ -38,7 +38,7 @@ window.onbeforeunload = save;
 document.onreadystatechange = load;
 
 let zero = new Date("2022-01-01 00:00:00");
-zero = new Date(zero.getTime() - zero.getTimezoneOffset());
+// zero = new Date(zero.getTime() - zero.getTimezoneOffset());
 
 // timers : [{id,type,datetime}]
 
@@ -134,6 +134,11 @@ let data;
 
 function load() {
     if (loaded == true) return;
+
+    let dayofweek = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+    let today = new Date();
+    data_today.innerText = `${dayofweek[today.getDay()]}, ${today.getDate()<=9?"0":""}${today.getDate()}.${today.getMonth()+1<=9?"0":""}${today.getMonth()+1}.${today.getFullYear()}`
+
     loaded = true;
     console.log("Loading Data...");
     // console.info(arguments);
@@ -143,17 +148,33 @@ function load() {
         ) || []
     )
     if (data == [] || data.length == 0) return;
-    data.map(
+    data.sort((a,b)=>(a.datetime>=b.datetime?1:-1)).map(
         (e) => timers.push(
             new TimeElement(e)
         )
     )
     // showTotal();
     console.log("Data Loaded!");
-    let dayofweek = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
-    let today = new Date();
-    data_today.innerText = `${dayofweek[today.getDay()]}, ${today.getDate()<=9?"0":""}${today.getDate()}.${today.getMonth()+1<=9?"0":""}${today.getMonth()+1}.${today.getFullYear()}`
-
+}
+function importData(inputData){
+    if (getClass(inputData) == 'String'){
+        try {
+            inputData = JSON.parse(inputData);
+        }
+        catch (e) {
+            return console.error("Data can not be Converted to JSON"),"Data can not be Converted to JSON";
+        }
+    }
+    if(getClass(inputData) != 'Array'){
+        throw new Error("Can not import Data given.");
+    }
+    let result = window.confirm("Do you want to Save to imported Data?");
+    timers
+        .push(
+            ...inputData.map(a=>(new TimeElement(a)))
+            .map(a=>(a.export=result,a))
+        );
+    save();
 }
 
 function showTotal() {
@@ -168,8 +189,9 @@ function showTotal() {
                 )
             );
             estEnd.setSeconds(30);
-            estEndText = displayTimeHM(estEnd)+":00";
-            totalText = displayTimeHMS(new Date(consumedTimeInMS));
+            _a = estEnd;
+            estEndText = displayTimeHM(estEnd,false)+":00";
+            totalText = displayTimeHMS(new Date(consumedTimeInMS),false);
             // totalText = `${Math.floor(consumedTimeInMS)}:${Math.floor(consumedTimeInMS % 1 * 60)}:${Math.floor(consumedTimeInMS % 1 * 60 % 1 * 60)}`;
             return {totalText,estEndText};
         }
@@ -220,7 +242,7 @@ function showTotal() {
 }
 
 function RemoveAll() {
-    let rly = window.confirm("Sure?");
+    let rly = window.confirm("Do you want to Remove all Data from this Page?");
     if (rly == true) {
         timers.map(
             (e) => e.dispose()
@@ -234,10 +256,11 @@ function displayTimeHMS(time){
     let a=(b)=>(b<=9?'0'+b:b.toString());
     return `${a(aligned.getHours()+((aligned.getDate()-1)*24))}:${a(aligned.getMinutes())}:${a(aligned.getSeconds())}`;
 }
-function displayTimeHM(time){
+function displayTimeHM(time,addDays=true){
     let aligned = new Date(zero.getTime() + time.getTime());
+    if(addDays == false){aligned = time;}
     let a=(b)=>(b<=9?'0'+b:b.toString());
-    return `${a(aligned.getHours()+((aligned.getDate()-1)*24))}:${a(aligned.getMinutes())}`;
+    return `${a(aligned.getHours()+(!addDays?0:((aligned.getDate()-1)*24)))}:${a(aligned.getMinutes())}`;
 }
 
 let intervalTimer = setInterval(
@@ -319,3 +342,24 @@ TimeElement.generateModel = function(data){
         }(list.children)
     );
 }
+
+// import data by filedrop
+async function handleDropEvent(evt){
+    evt.stopPropagation();
+    evt.preventDefault();
+    files = evt.dataTransfer.files;
+    console.log(files);
+    let targetFile = files[0];
+    if(targetFile.type == "application/json"){
+        console.log("Importing File "+(targetFile.name.toString()));
+        targetFile.text().then(importData).catch(a=>alert(a));
+    }
+}
+function handleDropOverEvent(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+
+window.addEventListener("drop",handleDropEvent, false);
+window.addEventListener("dragover",handleDropOverEvent,false);
