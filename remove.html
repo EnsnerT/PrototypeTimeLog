@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Time-Log | @tl</title>
+        <style>
+            :root {
+                /* CSS - Color */
+                --t-bg:  #d3d3d380; /* Tasks */
+                --m-bg:  #a9a9a980; /* Menu */
+                --mb-bg: #d4d4d480; /* Menu Button */
+                --bt-bg: #d3d3d380; /* Buttons */
+                --t-c: #fff; /* Text */ 
+
+                --p-bg:  #0008;   /* Background Popup (Alpha: 50%) */
+                --p-box: #ffffff; /* Popup Box (alpha: 100%) */
+                --p-ob:  #4873ff; /* Popup Ok button */
+                --p-cb:  #9fb1ee; /* Popup Cancel button */
+
+                --r-p:   #3bd1ff; /* Run-button Primary */
+                --r-p2:  #05c5ff; /* Run-button Primary hover */
+                --r-s:   #ffffff; /* Run-button Secondary*/
+
+                --s-p:   #ffb5b5; /* Stop-button Primary */
+                --s-p2:  #ff7c7c; /* Stop-button Primary hover */
+                --s-s:   #ffffff; /* Stop-button Secondary*/
+
+                --th-bg: #000000; /* Theme base */
+
+                --bt-st: #0f0;
+                --bt-br: #f70;
+                --bt-ed: #f00;
+                --bt-ex: #07f;
+                --color-text: #000;
+            }
+            * {
+                font-family: 'consolas';
+                color: var(--t-c);
+            }
+            body {
+                margin: 0px;
+                background: var(--th-bg);
+                /* min-height: calc(100vh - 10px); */
+            }
+            .menu, .list {
+                position: relative;
+                left:50%;
+                transform: translateX(-50%);
+                width: 80%;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .menu {
+                
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                background: var(--m-bg);
+                padding: 5px;
+                border-radius: 10px;
+                white-space: nowrap;
+                margin: 10px 0px;
+                display: none;
+            }
+            .w-half , .w-full {
+                display:flex;
+                flex-direction: row;
+                justify-content: space-evenly;
+                margin: 6px 0px;
+            }
+            .data-field {    
+                display: flex;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: center;
+                align-content: center;
+                width: 100%;
+            }
+            .w-half .data-field {
+                width: 40%;
+            }
+            .data-field>hr {
+                width:100%;
+            }
+            .desc {
+                font-size: 10px;
+            }
+
+            .bt {
+                border: 0px solid;
+                color: var(--color-text);
+
+                /* width: 100%; */
+                width: 50%;
+                margin: 0px 10px;
+                /* height: 50px; */
+                font-weight: 700;
+                font-size: 28px;
+            }
+            .bottom .bt {
+                font-size: 20px;
+            }
+            .btStart, [data-log-type="start"]{
+                background: var(--bt-st);
+            }
+            .btBreak,[data-log-type="break"]{
+                background: var(--bt-br);
+            }
+            .btEnd,[data-log-type="end"]{
+                background: var(--bt-ed);
+            }
+            .btExp{
+                background: var(--bt-ex);
+            }
+            [data-log]{
+                margin: 3px 0px;
+                padding: 5px;
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+            }
+            [data-log] span {
+                color: var(--color-text);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="menu">
+
+            <div class="w-full">
+                <div class="data-field">
+                    <span class="time" data-today>Montag, 04.07.2022</span>
+                    <hr>
+                    <span class="desc">Today</span>
+                </div>
+            </div>
+            <div class="w-half">
+                <div class="data-field">
+                    <span class="time" data-day-total>00:00:00</span>
+                    <hr>
+                    <span class="desc">Daily Total</span>
+                </div>
+                <div class="data-field">
+                    <span class="time" data-week-total>00:00:00</span>
+                    <hr>
+                    <span class="desc">Weekly Total</span>
+                </div>
+            </div>
+            <div class="w-half">
+                <div class="data-field">
+                    <span class="time" data-day-end>00:00:00</span>
+                    <hr>
+                    <span class="desc">Estimated End</span>
+                </div>
+                <div class="data-field">
+                    <span class="time" data-week-overtime>00:00:00</span>
+                    <hr>
+                    <span class="desc">Weekly Overtime</span>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- <div class="list"> -->
+        <div class="list" data-feature="delete">
+
+            <!-- = baseElement --> 
+            <!-- <div class="noDelete" data-log data-log-type="start">  
+                <span>Start Work</span>
+                <input type="hidden" name="id" value="0">
+                <button class="bt" onclick="removeOnly(this)">Remove</button>
+                <span>04.07.2022 08:00:02</span>
+            </div>
+            <div class="noDelete" data-log data-log-type="break">  
+                <span>Break Work</span>
+                <input type="hidden" name="id" value="1">
+                <span>04.07.2022 12:00:02</span>
+            </div>
+            <div class="noDelete" data-log data-log-type="start">  
+                <span>Start Work</span>
+                <input type="hidden" name="id" value="2">
+                <span>04.07.2022 13:00:02</span>
+            </div>
+            <div class="noDelete" data-log data-log-type="end">  
+                <span>End Work</span>
+                <input type="hidden" name="id" value="3">
+                <span>04.07.2022 16:00:02</span>
+            </div> -->
+
+        </div>
+        
+        <script src="./script_tl.js" type="text/javascript"></script>
+        <script >
+            function removeOnly(el){
+                let id = el.parentElement.querySelector("input[name=id]").value;
+                console.log(timers.filter(a=>a.is(id)),id)
+                timers.filter(a=>a.is(id))[0].dispose();
+                save();
+                load();
+            }
+        </script>
+
+    </body>
+
+</html>

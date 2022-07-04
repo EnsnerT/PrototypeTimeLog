@@ -92,7 +92,7 @@ function addBreak() {
                 "datetime": Date.now(),
                 "id": getNextUnique()
             }
-        )
+    )
     );
     save();
 }
@@ -289,14 +289,14 @@ class TimeElement {
     mode = TYPES.START;
     export = true;
 
-    constructor(data) {
+    constructor(data,feature=null) {
         if(data == null) {return null}
         if (getClass(data) == "Object") {
             /* this.id = data.id; */
             this.id = getNextUnique();
             this.datetime = data.datetime;
             this.type = data.type;
-            this.baseElement = TimeElement.generateModel(data);
+            this.baseElement = TimeElement.generateModel(this);
         } else {
             this.baseElement = data;
             this.id = data.querySelector("input[name=id]").value;
@@ -331,6 +331,7 @@ TimeElement.generateModel = function(data){
     let div = document.createElement('div'); 
     div.innerHTML = '<span>' + TYPES_TRANSLATION[data.type] + '</span>'
     +'<input type="hidden" name="id" value="' + data.id + '">'
+    +((list.getAttribute("data-feature")||"").includes("delete")?'<button class="bt" onclick="removeOnly(this)">Remove</button>':'')
     +'<span>'+(new Date(data.datetime)).toLocaleString()+'</span>';
     div.setAttribute("data-log","");
     div.setAttribute("data-log-type",TYPES_CLASS[data.type]);

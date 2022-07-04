@@ -62,6 +62,12 @@ Reloading the Page at any time will save the Elements and Load it back again.
 
 ## What did change since First Upload?
 
+### Added Feature, Update 0.0.2
+Date : 2022-07-04
+Feature
+- Added a *./remove.html* to manualy Delete Single Entries. (Planed to make it inline, Not Time Currently)
+- Updated Script to support the change
+
 ### Bugfix & Features, Update 0.0.1
 Date : 2022-07-02  
 Bugfixes
@@ -75,7 +81,8 @@ Features
 - You can Drag'n Drop the Exported Files into the Page to load the Exported Data.
   - You can also chose to Preview the data (not save it in storage), or to import it into the Active Timer.
   - This will not be sortet, but will sort automaticly if the page is refreshed.
-- Renamed time.html to index.html
+- Renamed time.html to index.html  
+
 ### Initial Commit
 Date : 2022-07-01
 - Uploaded time.html and script_tl.js
